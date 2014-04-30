@@ -34,7 +34,7 @@ process_message(Message, Recipient, FoldFun, Acc) ->
     {Results, NextAcc} = FoldFun(Message, Acc),
     if
         Recipient /= undefined ->
-            lists:foreach(fun(NewMessage) -> Recipient ! {msg, NewMessage} end, Results);
+            utils:pipeline_messages(Recipient, Results);
         true -> true
     end,
     fold_service(Recipient, FoldFun, NextAcc).

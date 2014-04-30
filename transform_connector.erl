@@ -33,7 +33,7 @@ process_command(Command, _Recipient, TransformFun) ->
 process_message(Message, Recipient, TransformFun) ->
     if
         Recipient /= undefined ->
-            lists:foreach(fun(NewMessage) -> Recipient ! {msg, NewMessage} end, TransformFun(Message));
+            utils:pipeline_messages(Recipient, TransformFun(Message));
         true -> true
     end,
     transform_service(Recipient, TransformFun).
