@@ -1,7 +1,7 @@
 -module(partition_connector).
 -export([partition_service/1]).
 
-partition_service(FilterFun) ->
+partition_service(FilterFun) when is_function(FilterFun, 1) ->
     partition_service({undefined, undefined}, FilterFun).
 
 partition_service(Recipients, FilterFun) ->
@@ -19,9 +19,15 @@ partition_service(Recipients, FilterFun) ->
 process_command(Command, {PassRecipient, FailRecipient}, FilterFun) ->
     case Command of
         {set_pass_recipient, NewPassRecipient} ->
-            partition_service({NewPassRecipient, FailRecipient}, FilterFun);
+            case utils:is_pid_or_registered(NewPassRecipient) of
+                true ->
+                    partition_service({NewPassRecipient, FailRecipient}, FilterFun)
+            end;
         {set_fail_recipient, NewFailRecipient} ->
-            partition_service({PassRecipient, NewFailRecipient}, FilterFun);
+            case utils:is_pid_or_registered(NewFailRecipient) of
+                true ->
+                    partition_service({PassRecipient, NewFailRecipient}, FilterFun)
+            end;
         {unset_pass_recipient} ->
             partition_service({undefined, FailRecipient}, FilterFun);
         {unset_fail_recipient} ->

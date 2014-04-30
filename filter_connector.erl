@@ -1,7 +1,7 @@
 -module(filter_connector).
 -export([filter_service/1]).
 
-filter_service(FilterFun) ->
+filter_service(FilterFun) when is_function(FilterFun, 1) ->
     filter_service(undefined, FilterFun).
 
 filter_service(Recipient, FilterFun) ->
@@ -20,7 +20,10 @@ filter_service(Recipient, FilterFun) ->
 process_command(Command, _Recipient, FilterFun) ->
     case Command of
         {set_recipient, NewRecipient} ->
-            filter_service(NewRecipient, FilterFun);
+            case utils:is_pid_or_registered(NewRecipient) of
+                true ->
+                    filter_service(NewRecipient, FilterFun)
+            end;
         {unset_recipient} ->
             filter_service(undefined, FilterFun);
         quit -> ok

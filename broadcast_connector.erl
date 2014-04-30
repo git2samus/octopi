@@ -20,8 +20,11 @@ broadcast_service(Recipients) ->
 process_command(Command, Recipients) ->
     case Command of
         {add_recipient, Recipient} ->
-            NewRecipients = sets:add_element(Recipient, Recipients),
-            broadcast_service(NewRecipients);
+            case utils:is_pid_or_registered(Recipient) of
+                true ->
+                    NewRecipients = sets:add_element(Recipient, Recipients),
+                    broadcast_service(NewRecipients)
+            end;
         {del_recipient, Recipient} ->
             NewRecipients = sets:del_element(Recipient, Recipients),
             broadcast_service(NewRecipients);
