@@ -16,7 +16,7 @@ partition_service(Recipients, FilterFun) ->
     end.
 
 
-process_command(Command, {PassRecipient, FailRecipient}, FilterFun) ->
+process_command(Command, Recipients = {PassRecipient, FailRecipient}, FilterFun) ->
     case Command of
         {set_pass_recipient, NewPassRecipient} ->
             case utils:is_pid_or_registered(NewPassRecipient) of
@@ -32,6 +32,9 @@ process_command(Command, {PassRecipient, FailRecipient}, FilterFun) ->
             partition_service({undefined, FailRecipient}, FilterFun);
         {unset_fail_recipient} ->
             partition_service({PassRecipient, undefined}, FilterFun);
+        {get_recipients, ReplyTo} ->
+            ReplyTo ! {recipients, Recipients},
+            partition_service(Recipients);
         quit -> ok
     end.
 

@@ -17,7 +17,7 @@ filter_service(Recipient, FilterFun) ->
     end.
 
 
-process_command(Command, _Recipient, FilterFun) ->
+process_command(Command, Recipient, FilterFun) ->
     case Command of
         {set_recipient, NewRecipient} ->
             case utils:is_pid_or_registered(NewRecipient) of
@@ -26,6 +26,9 @@ process_command(Command, _Recipient, FilterFun) ->
             end;
         {unset_recipient} ->
             filter_service(undefined, FilterFun);
+        {get_recipient, ReplyTo} ->
+            ReplyTo ! {recipient, Recipient},
+            filter_service(Recipient);
         quit -> ok
     end.
 

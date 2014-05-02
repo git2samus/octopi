@@ -17,7 +17,7 @@ transform_service(Recipient, TransformFun) ->
     end.
 
 
-process_command(Command, _Recipient, TransformFun) ->
+process_command(Command, Recipient, TransformFun) ->
     case Command of
         {set_recipient, NewRecipient} ->
             case utils:is_pid_or_registered(NewRecipient) of
@@ -26,6 +26,9 @@ process_command(Command, _Recipient, TransformFun) ->
             end;
         {unset_recipient} ->
             transform_service(undefined, TransformFun);
+        {get_recipient, ReplyTo} ->
+            ReplyTo ! {recipient, Recipient},
+            transform_service(Recipient);
         quit -> ok
     end.
 

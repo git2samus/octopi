@@ -28,6 +28,9 @@ process_command(Command, Recipients) ->
         {del_recipient, Recipient} ->
             NewRecipients = sets:del_element(Recipient, Recipients),
             broadcast_service(NewRecipients);
+        {get_recipients, ReplyTo} ->
+            ReplyTo ! {recipients, Recipients},
+            broadcast_service(Recipients);
         quit -> ok
     end.
 

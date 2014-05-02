@@ -17,7 +17,7 @@ fold_service(Recipient, FoldFun, Acc) ->
     end.
 
 
-process_command(Command, _Recipient, FoldFun, Acc) ->
+process_command(Command, Recipient, FoldFun, Acc) ->
     case Command of
         {set_recipient, NewRecipient} ->
             case utils:is_pid_or_registered(NewRecipient) of
@@ -26,6 +26,9 @@ process_command(Command, _Recipient, FoldFun, Acc) ->
             end;
         {unset_recipient} ->
             fold_service(undefined, FoldFun, Acc);
+        {get_recipient, ReplyTo} ->
+            ReplyTo ! {recipient, Recipient},
+            fold_service(Recipient, FoldFun, Acc);
         quit -> ok
     end.
 
